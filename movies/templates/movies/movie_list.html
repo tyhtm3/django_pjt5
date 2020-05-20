@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load bootstrap_pagination %}
+
+
+{% block content %}
+    <button id = "recommendButton">추천좀 </button>
+    <ul id="recommendMovie">
+
+    </ul>
+    <div class="row mt-5">
+
+ 
+    
+    
+    {% for movie in page_obj %}
+        <div class="card" style="width: 9rem;" >
+        <img src="https://image.tmdb.org/t/p/w342/{{movie.poster_path}}" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">{{movie.title}}</h5>
+            <p class="card-text">
+                {% for genre in movie.genres.all  %}
+                    {{genre.name}},
+                {% endfor %}
+            
+            </p>
+            <a href="{% url 'movies:movie_detail' movie.pk %}" class="btn btn-primary">상세 페이지</a>
+            <p>{{ movie.like_users.all|length }} 명이 좋아 합니다.</p>
+        </div>
+        </div>
+
+    {% endfor %}
+    
+
+    </div>
+    {% bootstrap_paginate page_obj range=5 show_prev_next="false" show_first_last="true" %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.querySelector('#recommendButton').addEventListener('click',event=>{
+        axios.get('/movies/recommend/')
+            .then(res=>{
+                const space = document.querySelector('#recommendMovie')
+                const display = document.querySelector('.recommendMovies')
+                if(!display){
+                for(i=0; i<10; i++){
+                const pTag = document.createElement('li')
+                pTag.innerText= res.data[i].title
+                pTag.setAttribute('class', 'recommendMovies')
+                space.appendChild(pTag)
+                }
+                }else{
+                    const temp = document.querySelectorAll('.recommendMovies')
+                    for(i=0; i<res.data.length;i++){
+                        if(temp[i]){
+                            temp[i].innerText=res.data[i].title
+                        }else{
+                            break
+                        }
+                    }
+                }
+            })
+    })
+</script>
+
+{% endblock script %}

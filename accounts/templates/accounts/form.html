@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+
+<div class="row">
+{% block content %}
+    <form action="" method ="POST">
+        {% csrf_token %}
+        {% bootstrap_form form%}
+        <button>확인</button>
+    </form>
+{% endblock content %}
+</div>
